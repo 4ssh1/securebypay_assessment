@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -15,6 +15,7 @@ export class WalletController {
   constructor(private readonly wallet: WalletService) {}
 
   @Get()
+  @ApiResponse({ status: 200, schema: { example: { balance: '3000000.28', currency: 'NGN' } } })
   summary(@CurrentUser('id') userId: string) {
     return this.wallet.getSummary(userId);
   }
@@ -22,6 +23,7 @@ export class WalletController {
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @HttpCode(HttpStatus.OK)
   @Post('fund')
+  @ApiResponse({ status: 200, schema: { example: { balance: '3001000.78', currency: 'NGN', reference: 'funding_2026_09_25', replayed: false } } })
   fund(@CurrentUser('id') userId: string, @Body() dto: FundWalletDto) {
     return this.wallet.fund(userId, dto);
   }

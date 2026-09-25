@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Res } from '@nestjs/common';
-import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { ClientInfo,type  ClientMeta } from '../common/decorators/client-meta.decorator';
@@ -32,6 +32,7 @@ export class AuthController {
   @Throttle(STRICT_LIMIT)
   @HttpCode(HttpStatus.OK)
   @Post('verify-signup-otp')
+  @ApiResponse({ status: HttpStatus.OK, type: AuthUserDto, description: 'Verified user and authenticated session.' })
   async verifySignupOtp(
     @Body() dto: VerifyOtpDto,
     @ClientInfo() meta: ClientMeta,
@@ -73,6 +74,7 @@ export class AuthController {
   @Throttle(STRICT_LIMIT)
   @HttpCode(HttpStatus.OK)
   @Post('login')
+  @ApiResponse({ status: HttpStatus.OK, type: AuthUserDto, description: 'Authenticated user.' })
   async login(
     @Body() dto: LoginDto,
     @ClientInfo() meta: ClientMeta,
@@ -104,6 +106,7 @@ export class AuthController {
 
   @ApiCookieAuth()
   @Get('me')
+  @ApiResponse({ status: HttpStatus.OK, type: AuthUserDto })
   async me(@CurrentUser('id') userId: string) {
     return AuthUserDto.from(await this.auth.me(userId));
   }

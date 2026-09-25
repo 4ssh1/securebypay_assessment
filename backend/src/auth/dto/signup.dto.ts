@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 import {
   PASSWORD_COMPLEXITY_MESSAGE,
@@ -9,27 +10,32 @@ import { NormalizeEmail, StripPhoneFormatting, Trim } from '../../common/dto/tra
 
 export class SignupDto {
   @Trim()
-  @IsString()
+    @ApiProperty({ example: 'Bunmi', maxLength: 80 })
+    @IsString()
   @IsNotEmpty()
   @MaxLength(80)
   firstName: string;
 
   @Trim()
-  @IsString()
+    @ApiProperty({ example: 'Tanny', maxLength: 80 })
+    @IsString()
   @IsNotEmpty()
   @MaxLength(80)
   lastName: string;
 
   @NormalizeEmail()
-  @IsEmail()
+    @ApiProperty({ example: 'bunmi.tanny@example.com', maxLength: 255, format: 'email' })
+    @IsEmail()
   @MaxLength(255)
   email: string;
 
   @StripPhoneFormatting()
-  @Matches(/^\+?[1-9]\d{7,14}$/, { message: 'phone must be a valid international phone number' })
+    @ApiProperty({ example: '+2348010000004', pattern: '^\\+?[1-9]\\d{7,14}$' })
+    @Matches(/^\+?[1-9]\d{7,14}$/, { message: 'phone must be a valid international phone number' })
   phone: string;
 
-  @IsString()
+    @ApiProperty({ example: 'SecurePay#2026', minLength: PASSWORD_MIN_LENGTH, maxLength: PASSWORD_MAX_LENGTH, format: 'password' })
+    @IsString()
   @MinLength(PASSWORD_MIN_LENGTH)
   @MaxLength(PASSWORD_MAX_LENGTH)
   @Matches(PASSWORD_COMPLEXITY_PATTERN, { message: PASSWORD_COMPLEXITY_MESSAGE })
