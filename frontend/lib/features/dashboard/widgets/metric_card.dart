@@ -3,9 +3,10 @@ import '../../../core/theme.dart';
 
 class MetricCard extends StatelessWidget {
   final String title;
-  final dynamic value;
-  final String trendPercentage;
-  final bool isTrendUp;
+  final int value;
+
+  final double? changePercent;
+  final int previousCount;
   final IconData icon;
   final Color iconColor;
   final Color iconBackgroundColor;
@@ -14,8 +15,8 @@ class MetricCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.value,
-    required this.trendPercentage,
-    this.isTrendUp = true,
+    required this.changePercent,
+    required this.previousCount,
     required this.icon,
     required this.iconColor,
     required this.iconBackgroundColor,
@@ -24,6 +25,8 @@ class MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final change = changePercent;
+    final isUp = (change ?? 0) >= 0;
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -63,27 +66,30 @@ class MetricCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Row(
-                children: [
-                  Icon(
-                    isTrendUp ? Icons.arrow_upward : Icons.arrow_downward,
-                    color: isTrendUp ? AppColors.success : AppColors.danger,
-                    size: 14,
-                  ),
-                  const SizedBox(width: 3),
-                  Text(
-                    trendPercentage,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: isTrendUp ? AppColors.success : AppColors.danger,
-                      fontWeight: FontWeight.bold,
+              if (change != null)
+                Row(
+                  children: [
+                    Icon(
+                      isUp ? Icons.arrow_upward : Icons.arrow_downward,
+                      color: isUp ? AppColors.success : AppColors.danger,
+                      size: 14,
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(width: 3),
+                    Text(
+                      '${change.abs().toStringAsFixed(1)}%',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: isUp ? AppColors.success : AppColors.danger,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                )
+              else
+                Text('—', style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
             ],
           ),
           const SizedBox(height: 6),
-          Text('vs last month: 4', style: theme.textTheme.bodySmall),
+          Text('vs last month: $previousCount', style: theme.textTheme.bodySmall),
         ],
       ),
     );

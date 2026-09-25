@@ -12,6 +12,8 @@ class RecentShipmentCard extends StatelessWidget {
   final String processingTime;
   final bool isPaid;
 
+  final bool showPayment;
+
   const RecentShipmentCard({
     super.key,
     required this.trackingId,
@@ -23,6 +25,7 @@ class RecentShipmentCard extends StatelessWidget {
     required this.status,
     required this.processingTime,
     required this.isPaid,
+    this.showPayment = true,
   });
 
   Color _getStatusColor() {
@@ -31,6 +34,10 @@ class RecentShipmentCard extends StatelessWidget {
         return AppColors.warning;
       case 'delayed':
         return const Color(0xFF2FB6C4);
+      case 'delivered':
+        return AppColors.success;
+      case 'cancelled':
+        return AppColors.danger;
       default:
         return AppColors.textSecondary;
     }
@@ -149,14 +156,15 @@ class RecentShipmentCard extends StatelessWidget {
             runSpacing: 12,
             children: [
               OutlinedButton(onPressed: () {}, child: const Text('View More')),
-              ElevatedButton(
-                onPressed: isPaid ? null : () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isPaid ? const Color(0xFFE4E4E4) : AppColors.darkNavy,
-                  foregroundColor: isPaid ? AppColors.textSecondary : Colors.white,
+              if (showPayment)
+                ElevatedButton(
+                  onPressed: isPaid ? null : () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isPaid ? const Color(0xFFE4E4E4) : AppColors.darkNavy,
+                    foregroundColor: isPaid ? AppColors.textSecondary : Colors.white,
+                  ),
+                  child: Text(isPaid ? 'Paid' : 'Pay Now'),
                 ),
-                child: Text(isPaid ? 'Paid' : 'Pay Now'),
-              ),
             ],
           ),
         ),
@@ -202,15 +210,17 @@ class RecentShipmentCard extends StatelessWidget {
     return Row(
       children: [
         OutlinedButton(onPressed: () {}, child: const Text('View More')),
-        const SizedBox(width: 12),
-        ElevatedButton(
-          onPressed: isPaid ? null : () {},
-          style: ElevatedButton.styleFrom(
-            backgroundColor: isPaid ? const Color(0xFFE4E4E4) : AppColors.darkNavy,
-            foregroundColor: isPaid ? AppColors.textSecondary : Colors.white,
+        if (showPayment) ...[
+          const SizedBox(width: 12),
+          ElevatedButton(
+            onPressed: isPaid ? null : () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isPaid ? const Color(0xFFE4E4E4) : AppColors.darkNavy,
+              foregroundColor: isPaid ? AppColors.textSecondary : Colors.white,
+            ),
+            child: Text(isPaid ? 'Paid' : 'Pay Now'),
           ),
-          child: Text(isPaid ? 'Paid' : 'Pay Now'),
-        ),
+        ],
       ],
     );
   }

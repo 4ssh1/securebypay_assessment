@@ -8,22 +8,25 @@ import 'widgets/metric_card.dart';
 import 'widgets/wallet_card.dart';
 import 'widgets/growth_chart.dart';
 import 'widgets/recent_shipment_card.dart';
+import 'widgets/fund_wallet_dialog.dart';
+import '../../core/models/dashboard.dart';
+import '../../core/models/shipment.dart';
 import '../../core/theme.dart';
 import '../../core/responsive.dart';
 import '../../shared/widgets/app_sidebar.dart';
+import '../../utils/format.dart';
 
 class DashboardPage extends HookConsumerWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final metricsAsync = ref.watch(metricsProvider);
     final theme = Theme.of(context);
     final isDesktop = Responsive.isDesktop(context);
     final contentPadding = Responsive.isMobile(context) ? 16.0 : 32.0;
 
-    final selectedFilter = useState('Month');
-    final filterOptions = ['Year', 'Month', 'Week'];
+    final selectedPeriod = useState(DashboardPeriod.thisMonth);
+    final overviewAsync = ref.watch(dashboardProvider(selectedPeriod.value));
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -48,10 +51,10 @@ class DashboardPage extends HookConsumerWidget {
         children: [
           if (isDesktop) const AppSidebar(activeRoute: 'Dashboard'),
           Expanded(
-            child: metricsAsync.when(
+            child: overviewAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(child: Text('Error: $err')),
-              data: (metrics) => ListView(
+              data: (overview) => ListView(
                 padding: EdgeInsets.all(contentPadding),
                 children: [
                   Text('Invite & Earn', style: theme.textTheme.titleLarge),
@@ -71,7 +74,7 @@ class DashboardPage extends HookConsumerWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
 
                   Row(
@@ -86,8 +89,8 @@ class DashboardPage extends HookConsumerWidget {
                           border: Border.all(color: AppColors.border),
                         ),
                         child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: selectedFilter.value,
+                          child: DropdownButton<DashboardPeriod>(
+                            value: selectedPeriod.value,
                             icon: const Padding(
                               padding: EdgeInsets.only(left: 6.0),
                               child: Icon(Icons.keyboard_arrow_down, size: 16, color: AppColors.textSecondary),
@@ -96,17 +99,12 @@ class DashboardPage extends HookConsumerWidget {
                             style: theme.textTheme.bodyMedium,
                             dropdownColor: Colors.white,
                             borderRadius: BorderRadius.circular(8),
-                            onChanged: (String? newValue) {
-                              if (newValue != null) {
-                                selectedFilter.value = newValue;
-                              }
+                            onChanged: (value) {
+                              if (value != null) selectedPeriod.value = value;
                             },
-                            items: filterOptions.map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text('This $value'),
-                              );
-                            }).toList(),
+                            items: DashboardPeriod.values
+                                .map((p) => DropdownMenuItem(value: p, child: Text(p.label)))
+                                .toList(),
                           ),
                         ),
                       ),
@@ -114,81 +112,7 @@ class DashboardPage extends HookConsumerWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  if (isDesktop)
-                    Row(
-                      children: [
-                        Expanded(flex: 2, child: WalletCard(balance: metrics['balance'].toString())),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: MetricCard(
-                            title: 'Total Shipment',
-                            value: metrics['shipments'],
-                            trendPercentage: '90%',
-                            icon: Icons.local_shipping,
-                            iconColor: AppColors.warning,
-                            iconBackgroundColor: AppColors.warning.withValues(alpha: 0.12),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: MetricCard(
-                            title: 'Total Exports',
-                            value: metrics['exports'],
-                            trendPercentage: '90%',
-                            icon: Icons.arrow_upward,
-                            iconColor: AppColors.success,
-                            iconBackgroundColor: AppColors.success.withValues(alpha: 0.12),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: MetricCard(
-                            title: 'Total Import',
-                            value: metrics['imports'],
-                            trendPercentage: '90%',
-                            isTrendUp: false,
-                            icon: Icons.arrow_downward,
-                            iconColor: AppColors.info,
-                            iconBackgroundColor: AppColors.info.withValues(alpha: 0.12),
-                          ),
-                        ),
-                      ],
-                    )
-                  else
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        WalletCard(balance: metrics['balance'].toString()),
-                        const SizedBox(height: 12),
-                        MetricCard(
-                          title: 'Total Shipment',
-                          value: metrics['shipments'],
-                          trendPercentage: '90%',
-                          icon: Icons.local_shipping,
-                          iconColor: AppColors.warning,
-                          iconBackgroundColor: AppColors.warning.withValues(alpha: 0.12),
-                        ),
-                        const SizedBox(height: 12),
-                        MetricCard(
-                          title: 'Total Exports',
-                          value: metrics['exports'],
-                          trendPercentage: '90%',
-                          icon: Icons.arrow_upward,
-                          iconColor: AppColors.success,
-                          iconBackgroundColor: AppColors.success.withValues(alpha: 0.12),
-                        ),
-                        const SizedBox(height: 12),
-                        MetricCard(
-                          title: 'Total Import',
-                          value: metrics['imports'],
-                          trendPercentage: '90%',
-                          isTrendUp: false,
-                          icon: Icons.arrow_downward,
-                          iconColor: AppColors.info,
-                          iconBackgroundColor: AppColors.info.withValues(alpha: 0.12),
-                        ),
-                      ],
-                    ),
+                  _MetricsRow(overview: overview, isDesktop: isDesktop),
 
                   const SizedBox(height: 32),
 
@@ -201,38 +125,120 @@ class DashboardPage extends HookConsumerWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  const GrowthChart(),
-                  const SizedBox(height: 16),
+                  // manager/admin only — see sections.growthChart in the guide.
+                  if (overview.sections.growthChart) ...[
+                    const GrowthChart(),
+                    const SizedBox(height: 16),
+                  ],
 
-                  const RecentShipmentCard(
-                    trackingId: 'MAF-100-234-291',
-                    sender: 'Bunmi Tanny',
-                    receiver: 'Mercy',
-                    pickUpLocation: 'Lagos, Nigeria',
-                    deliveryLocation: 'Oyo Nigeria',
-                    amount: '₦3000',
-                    status: 'In-Transit',
-                    processingTime: '10 hours',
-                    isPaid: true,
-                  ),
-                  const SizedBox(height: 12),
-                  const RecentShipmentCard(
-                    trackingId: 'MAF-100-234-291',
-                    sender: 'Bunmi Tanny',
-                    receiver: 'Mercy',
-                    pickUpLocation: 'Lagos, Nigeria',
-                    deliveryLocation: 'Oyo Nigeria',
-                    amount: '₦3000',
-                    status: 'Delayed',
-                    processingTime: '10 hours',
-                    isPaid: false,
-                  ),
+                  if (overview.sections.recentShipments)
+                    for (final shipment in overview.recentShipments) ...[
+                      _RecentShipmentTile(shipment: shipment, canPay: overview.sections.wallet),
+                      const SizedBox(height: 12),
+                    ],
                 ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _MetricsRow extends StatelessWidget {
+  const _MetricsRow({required this.overview, required this.isDesktop});
+
+  final DashboardOverview overview;
+  final bool isDesktop;
+
+  Future<void> _handleFundWallet(BuildContext context) async {
+    final funded = await showFundWalletDialog(context);
+    if (funded == true && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Wallet funded successfully.')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final walletCard = (overview.sections.wallet && overview.wallet != null)
+        ? WalletCard(
+            balance: overview.wallet!.balance,
+            onFundPressed: () => _handleFundWallet(context),
+          )
+        : null;
+
+    final metricCards = [
+      MetricCard(
+        title: 'Total Shipment',
+        value: overview.totalShipments.count,
+        changePercent: overview.totalShipments.changePercent,
+        previousCount: overview.totalShipments.previousCount,
+        icon: Icons.local_shipping,
+        iconColor: AppColors.warning,
+        iconBackgroundColor: AppColors.warning.withValues(alpha: 0.12),
+      ),
+      MetricCard(
+        title: 'Total Exports',
+        value: overview.totalExports.count,
+        changePercent: overview.totalExports.changePercent,
+        previousCount: overview.totalExports.previousCount,
+        icon: Icons.arrow_upward,
+        iconColor: AppColors.success,
+        iconBackgroundColor: AppColors.success.withValues(alpha: 0.12),
+      ),
+      MetricCard(
+        title: 'Total Import',
+        value: overview.totalImports.count,
+        changePercent: overview.totalImports.changePercent,
+        previousCount: overview.totalImports.previousCount,
+        icon: Icons.arrow_downward,
+        iconColor: AppColors.info,
+        iconBackgroundColor: AppColors.info.withValues(alpha: 0.12),
+      ),
+    ];
+
+    final cards = [?walletCard, ...metricCards];
+
+    if (!isDesktop) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [for (final c in cards) ...[c, const SizedBox(height: 12)]],
+      );
+    }
+
+    return Row(
+      children: [
+        for (var i = 0; i < cards.length; i++) ...[
+          Expanded(flex: cards[i] == walletCard ? 2 : 1, child: cards[i]),
+          if (i != cards.length - 1) const SizedBox(width: 16),
+        ],
+      ],
+    );
+  }
+}
+
+class _RecentShipmentTile extends StatelessWidget {
+  const _RecentShipmentTile({required this.shipment, required this.canPay});
+
+  final Shipment shipment;
+  final bool canPay;
+
+  @override
+  Widget build(BuildContext context) {
+    return RecentShipmentCard(
+      trackingId: shipment.trackingId,
+      sender: shipment.sender.name,
+      receiver: shipment.receiver.name,
+      pickUpLocation: shipment.route.pickUp,
+      deliveryLocation: shipment.route.delivery,
+      amount: formatNaira(shipment.amount),
+      status: shipment.status.label,
+      processingTime: formatProcessingTime(shipment.processingTimeHours),
+      isPaid: shipment.paymentStatus == PaymentStatus.paid,
+      showPayment: canPay,
     );
   }
 }

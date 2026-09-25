@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/app_routes.dart';
 import '../../core/theme.dart';
 import '../../features/auth/auth_providers.dart';
 import 'avatar.dart';
-
-// TODO: replace with real user data once the backend/auth provider exposes it.
-const _mockFirstName = 'Adaeze';
-const _mockLastName = 'Okafor';
-const String? _mockAvatarUrl = null; 
 
 class AppSidebar extends HookConsumerWidget {
   final String activeRoute;
@@ -29,6 +25,10 @@ class AppSidebar extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authProvider).user;
+    final firstName = user?.firstName ?? '';
+    final lastName = user?.lastName ?? '';
+
     return Container(
       width: 250,
       color: Colors.white,
@@ -47,10 +47,11 @@ class AppSidebar extends HookConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
-                const UserAvatar(
-                  firstName: _mockFirstName,
-                  lastName: _mockLastName,
-                  avatarUrl: _mockAvatarUrl,
+                UserAvatar(
+                  firstName: firstName,
+                  lastName: lastName,
+
+                  avatarUrl: null,
                   size: 34,
                 ),
                 const SizedBox(width: 10),
@@ -60,7 +61,7 @@ class AppSidebar extends HookConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        _mockFirstName,
+                        firstName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.dmSans(
@@ -70,7 +71,7 @@ class AppSidebar extends HookConsumerWidget {
                         ),
                       ),
                       Text(
-                        _mockLastName,
+                        lastName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.dmSans(
@@ -115,9 +116,9 @@ class AppSidebar extends HookConsumerWidget {
             if (Scaffold.of(context).isDrawerOpen) Navigator.pop(context);
 
             if (title == 'Dashboard') {
-              context.go('/dashboard');
+              context.go(AppRoutes.dashboard);
             } else {
-              context.push('/coming-soon?title=$title');
+              context.push(AppRoutes.comingSoonPath(title));
             }
           },
           child: Padding(

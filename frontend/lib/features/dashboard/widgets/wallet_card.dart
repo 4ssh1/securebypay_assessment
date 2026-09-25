@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/responsive.dart';
+import '../../../utils/format.dart';
 
 class WalletCard extends StatelessWidget {
   final String balance;
+  final VoidCallback? onFundPressed;
 
-  const WalletCard({super.key, required this.balance});
+  const WalletCard({super.key, required this.balance, this.onFundPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +22,8 @@ class WalletCard extends StatelessWidget {
           Text('Your Balance', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70)),
           const SizedBox(height: 8),
           Text(
-            '₦$balance',
+
+            formatNaira(balance),
             style: GoogleFonts.dmSans(
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -29,7 +32,7 @@ class WalletCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: onFundPressed,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: theme.primaryColor,
