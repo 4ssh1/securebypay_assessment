@@ -119,7 +119,7 @@ npm run start:dev
 
 Frontend:
 ```bash
-flutter run -d chrome --web-port 8080
+flutter run -d chrome
 ```
 
 See the API guide for full endpoint documentation, required environment variables, and seeded test accounts.
