@@ -97,6 +97,14 @@ class SignupOtpPage extends HookConsumerWidget {
               'We sent a 6-digit code to the email you signed up with. Enter it below — it expires in 10 minutes.',
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.textTheme.bodySmall?.color, height: 1.6),
             ),
+            const SizedBox(height: 10),
+            Text(
+              "Can't find it? Check your spam or junk folder.",
+              style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
             const SizedBox(height: 32),
 
             if (errorMessage.value != null) ...[

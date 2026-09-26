@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'dashboard_providers.dart';
 import 'widgets/metric_card.dart';
 import 'widgets/wallet_card.dart';
@@ -67,11 +66,13 @@ class DashboardPage extends HookConsumerWidget {
 
                   ClipRRect(
                     borderRadius: BorderRadius.circular(14),
-                    child: SvgPicture.asset(
-                      'assets/images/bg.svg',
-                      height: isDesktop ? 180 : 140,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
+                    child: AspectRatio(
+                      aspectRatio: 800 / 250, 
+                      child: Image.asset(
+                        'assets/images/bg.png',
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
 
