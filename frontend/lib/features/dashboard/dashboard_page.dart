@@ -67,7 +67,7 @@ class DashboardPage extends HookConsumerWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(14),
                     child: AspectRatio(
-                      aspectRatio: 800 / 250, 
+                      aspectRatio: 3423 / 735, 
                       child: Image.asset(
                         'assets/images/bg.png',
                         width: double.infinity,

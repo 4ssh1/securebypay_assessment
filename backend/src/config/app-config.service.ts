@@ -83,6 +83,6 @@ export class AppConfigService {
   }
 
   get swaggerEnabled(): boolean {
-    return !this.isProduction;
+    return this.get('SWAGGER_ENABLED') === 'true';
   }
 }

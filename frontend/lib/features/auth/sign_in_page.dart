@@ -11,7 +11,7 @@ import '../../shared/widgets/custom_text_field.dart';
 import '../../shared/hooks/use_session_storage.dart';
 import '../../core/validators/form_validator.dart';
 
-const _seedPassword = '123@gq#1Es12';
+const _seedPassword = 'ttw4qhabsyq4y25252521fvsshshh65dcaanaajayqt24242fwvsghsh';
 
 class _DemoAccount {
   const _DemoAccount({
