@@ -4,6 +4,7 @@ import '../../core/models/auth_user.dart';
 import '../../core/api/api_client.dart';
 import '../../core/api/api_exception.dart';
 import '../../core/api/api_provider.dart';
+import '../dashboard/dashboard_providers.dart';
 
 enum AuthStatus { unknown, authenticated, unauthenticated }
 
@@ -63,6 +64,7 @@ class AuthNotifier extends Notifier<AuthState> {
     });
     final user = AuthUser.fromJson(response['data'] as Map<String, dynamic>);
     state = state.copyWith(status: AuthStatus.authenticated, user: user);
+    _invalidateDashboardCaches();
   }
 
   Future<void> resendOtp({required String userId}) {
@@ -89,6 +91,7 @@ class AuthNotifier extends Notifier<AuthState> {
     final response = await _api.post('/auth/login', body: {'email': email, 'password': password});
     final user = AuthUser.fromJson(response['data'] as Map<String, dynamic>);
     state = state.copyWith(status: AuthStatus.authenticated, user: user);
+    _invalidateDashboardCaches();
   }
 
   Future<void> logout() async {
@@ -99,7 +102,13 @@ class AuthNotifier extends Notifier<AuthState> {
     } finally {
       await _api.forgetSession();
       state = state.copyWith(status: AuthStatus.unauthenticated, clearUser: true);
+      _invalidateDashboardCaches();
     }
+  }
+
+  void _invalidateDashboardCaches() {
+    ref.invalidate(dashboardProvider);
+    ref.invalidate(growthProvider);
   }
 }
 
