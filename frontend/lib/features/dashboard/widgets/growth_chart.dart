@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../../core/api/api_exception.dart';
 import '../../../core/models/dashboard.dart';
 import '../../../core/theme.dart';
 import '../../../utils/format.dart';
@@ -87,7 +88,7 @@ class GrowthChart extends HookConsumerWidget {
             child: growthAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(
-                child: Text('Could not load growth data', style: theme.textTheme.bodySmall),
+                child: _GrowthErrorMessage(error: err, textTheme: theme.textTheme),
               ),
               data: (data) {
                 final points = data.points;
@@ -187,5 +188,37 @@ class GrowthChart extends HookConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+class _GrowthErrorMessage extends StatelessWidget {
+  const _GrowthErrorMessage({required this.error, required this.textTheme});
+
+  final Object error;
+  final TextTheme textTheme;
+
+  bool get _isForbidden {
+    final err = error;
+    return err is ApiException && err.code == 'FORBIDDEN';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isForbidden) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.lock_outline, size: 28, color: AppColors.textSecondary),
+          const SizedBox(height: 8),
+          Text(
+            'Not allowed for present role',
+            style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      );
+    }
+
+    return Text('Could not load growth data', style: textTheme.bodySmall);
   }
 }
