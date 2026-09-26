@@ -26,7 +26,7 @@ A shipment-tracking and wallet management platform with a role-based dashboard (
 | **class-validator / class-transformer** | Request DTO validation and environment variable validation |
 | **Helmet** | HTTP security headers and Content Security Policy |
 | **cookie-parser** | Signed, `HttpOnly` session cookies |
-| **Swagger (OpenAPI)** | Interactive API docs at `/docs` |
+| **Swagger (OpenAPI)** | Interactive API docs at `(https://api.snzeshi.tech/docs)` |
 | **Resend** | Transactional email in production; console transport for local development |
 
 ### Frontend
