@@ -64,9 +64,6 @@ export class EnvironmentVariables {
   @IsIn(['console', 'resend'])
   MAIL_TRANSPORT: 'console' | 'resend' = 'console';
 
-  @IsIn(['true', 'false'])
-  SWAGGER_ENABLED: 'true' | 'false' = 'true';
-
   @IsString()
   @IsNotEmpty()
   MAIL_FROM: string = 'SecureByPay <no-reply@securebypay.test>';

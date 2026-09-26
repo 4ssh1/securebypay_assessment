@@ -97,51 +97,60 @@ class SignInPage extends HookConsumerWidget {
     }
 
     Future<void> showDemoAccounts() async {
+      final screenHeight = MediaQuery.of(context).size.height;
+
       final account = await showModalBottomSheet<_DemoAccount>(
         context: context,
         showDragHandle: true,
+        isScrollControlled: true,
+        constraints: BoxConstraints(maxHeight: screenHeight * 0.75),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
         builder: (sheetContext) => SafeArea(
-          child: ListView(
-            shrinkWrap: true,
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-            children: [
-              Text('Try a demo account', style: theme.textTheme.titleLarge),
-              const SizedBox(height: 8),
-              Text(
-                'Explore how the dashboard changes by role. All seeded accounts use the same password.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.textTheme.bodySmall?.color,
-                ),
-              ),
-              const SizedBox(height: 16),
-              for (final account in _demoAccounts)
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: CircleAvatar(
-                    backgroundColor: theme.colorScheme.primary.withValues(
-                      alpha: 0.1,
-                    ),
-                    child: Icon(
-                      Icons.person_outline,
-                      color: theme.colorScheme.primary,
-                    ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                Text('Try a demo account', style: theme.textTheme.titleLarge),
+                const SizedBox(height: 8),
+                Text(
+                  'Explore how the dashboard changes by role. All seeded accounts use the same password.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.textTheme.bodySmall?.color,
                   ),
-                  title: Text(account.role),
-                  subtitle: Text('${account.email}\n${account.description}'),
-                  isThreeLine: true,
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(sheetContext).pop(account),
                 ),
-              const SizedBox(height: 8),
-              Text(
-                _seedPassword.isEmpty
-                    ? 'Enter the SEED_PASSWORD configured for the backend after choosing an account.'
-                    : 'Password: $_seedPassword',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.textTheme.bodySmall?.color,
+                const SizedBox(height: 16),
+                for (final account in _demoAccounts)
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: CircleAvatar(
+                      backgroundColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.1,
+                      ),
+                      child: Icon(
+                        Icons.person_outline,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    title: Text(account.role),
+                    subtitle: Text('${account.email}\n${account.description}'),
+                    isThreeLine: true,
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(sheetContext).pop(account),
+                  ),
+                const SizedBox(height: 8),
+                Text(
+                  _seedPassword.isEmpty
+                      ? 'Enter the SEED_PASSWORD configured for the backend after choosing an account.'
+                      : 'Password: $_seedPassword',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.textTheme.bodySmall?.color,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );

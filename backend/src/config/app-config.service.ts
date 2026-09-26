@@ -81,8 +81,4 @@ export class AppConfigService {
       passwordReset: this.get('MAIL_TEMPLATE_PASSWORD_RESET') as string,
     };
   }
-
-  get swaggerEnabled(): boolean {
-    return this.get('SWAGGER_ENABLED') === 'true';
-  }
 }

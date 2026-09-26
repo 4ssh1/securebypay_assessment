@@ -24,7 +24,7 @@ class DashboardPage extends HookConsumerWidget {
     final isDesktop = Responsive.isDesktop(context);
     final contentPadding = Responsive.isMobile(context) ? 16.0 : 32.0;
 
-    final selectedPeriod = useState(DashboardPeriod.thisMonth);
+    final selectedPeriod = useState(DashboardPeriod.thisYear);
     final overviewAsync = ref.watch(dashboardProvider(selectedPeriod.value));
 
     return Scaffold(
